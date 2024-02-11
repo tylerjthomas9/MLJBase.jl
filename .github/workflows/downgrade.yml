@@ -1,0 +1,31 @@
+name: Downgrade
+on:
+  pull_request:
+    branches:
+      - dev
+      - for-a-0-point-22-release
+      - next-breaking-release
+    paths-ignore:
+      - 'docs/**'
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - 'docs/**'
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['1']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+      - uses: cjdoris/julia-downgrade-compat-action@v1
+        with:
+          skip: Pkg,TOML
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
